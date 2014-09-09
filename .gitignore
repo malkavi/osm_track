@@ -1,0 +1,4 @@
+app_settings.php
+*.geojson
+resources/*
+map2
