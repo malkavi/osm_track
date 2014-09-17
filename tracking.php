@@ -45,10 +45,19 @@ fwrite($body, "new google.maps.LatLng(${lat}, ${lon}),\n");
 fclose($body);
 
 $epochFecha = intval($data['timestamp'] / 1000);
-$fecha = date('d/m/Y H:i:s', $epochFecha);;
+$fecha = date('d/m/Y H:i:s', $epochFecha);
 $body = fopen("./map2/textfile.txt", 'a');
 fwrite($body, "${lat}\t${lon}\t${fecha}\tEpoch: ${epochFecha}\thttp://dev.openlayers.org/img/marker.png\t16,16\t-8,-16\n");
 fclose($body);
+
+//Nuevo sustituo por meses, para liberar carga
+$ficherofecha = date('Y_m', $epochFecha);
+$nombreficheromensual = "./map3/loc_${ficherofecha}.tsv";
+$data = "${lat}\t${lon}\t${fecha}\tEpoch: ${epochFecha}\thttp://dev.openlayers.org/img/marker.png\t16,16\t-8,-16\n";
+if (!file_exists($nombreficheromensual)) {
+    file_put_contents($nombreficheromensual, "lat\tlon\ttitle\tdescription\ticon\ticonSize\ticonOffset\n", FILE_APPEND);    
+}
+file_put_contents($nombreficheromensual, $data, FILE_APPEND);
 
 ?>
 

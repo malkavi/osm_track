@@ -8,7 +8,15 @@
 */
 
 # Read the CSV file
-$csvfile = '../map2/textfile.txt';
+
+$file = $_GET['file'];
+
+if ($file) {
+    $csvfile = 'loc_'.$file.'.tsv';
+    //$csvfile = 'loc_2014_09.tsv';
+} else {
+    $csvfile = '../map2/textfile.txt';
+}
 
 $handle = fopen($csvfile, 'r');
 

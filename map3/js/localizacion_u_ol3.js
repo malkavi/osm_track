@@ -74,7 +74,18 @@ function loadMap() {
         layer: 'terrain-labels'
       })
     });
-    cargarGeoJson(30);
+    
+    var today = new Date();
+    var mm = today.getMonth()+1; //January is 0!
+    var yyyy = today.getFullYear();
+    if(mm<10) {
+        mm='0'+mm
+    } 
+    //var fechayearmonth = document.getElementById('yearmonth');
+    document.getElementById('yearmonth').value = yyyy+'-'+mm;
+    document.getElementById('yearmonth').max = yyyy+'-'+mm;
+    
+    cargarGeoJson(30, yyyy, mm);
 
 /*	// Points
 	createPointStyleFunction = function() {
@@ -182,7 +193,8 @@ function loadMap() {
     //visible.bindTo('checked', bing, 'visible');
     var boton = document.getElementById('bttrefresh');
     boton.addEventListener('click', function(){
-        actualizarGeoJson(parseInt(document.getElementById('puntos').value));
+        actualizarPuntosMapa();
+        //actualizarGeoJson(parseInt(document.getElementById('puntos').value));
     }, false);
     
     var capasSelect = document.getElementById('capas');
@@ -312,9 +324,10 @@ function loadMap() {
     	
     	//console.log(feature.getId());
     	//console.log(feature.get('title'));
-    	if (!feature.getId()){
+    	if (!feature.getId() && (feature.getId() != 0)){
     	    //Si no es un punto pasamos
-    	    //console.log("uuunod");
+    	    //console.log(feature.getId());
+    	    console.log("no es un punto");
     	    return;
     	}
     
@@ -383,14 +396,14 @@ function initCapas(){
     });
 }
 
-function actualizarGeoJson(num_marcadores) {
+function actualizarGeoJson(num_marcadores, year, month) {
     map.removeLayer(vectorLayer);
     console.log(num_marcadores);
-    cargarGeoJson(num_marcadores);
+    cargarGeoJson(num_marcadores, year, month);
     map.addLayer(vectorLayer);
 }
 
-function cargarGeoJson(num_marcadores) {
+function cargarGeoJson(num_marcadores, year, month) {
     // Points
 	var createPointStyleFunction = function() {
 		return function(feature, resolution) {
@@ -417,11 +430,12 @@ function cargarGeoJson(num_marcadores) {
 			return [ style ];
 		};
 	};
-	
+    
     MAX_marcadores = num_marcadores;
     geoJsonSource = new ol.source.GeoJSON({
 		projection : 'EPSG:3857',
-		url : 'tsv-to-geojson.php'
+		url : 'tsv-to-geojson.php?file='+year+'_'+month
+		//url : today
     });
     vectorLayer = new ol.layer.Vector({
 		source : geoJsonSource,
@@ -434,6 +448,9 @@ function cargarGeoJson(num_marcadores) {
 			console.log("algo ");
 			//var features = geoJsonSource.getFeatures();
 			var id_pos = 0;
+			if (vectorLayer.getSource().getFeatures().length < MAX_marcadores) {
+			    MAX_marcadores = vectorLayer.getSource().getFeatures().length;
+			}
 			while (vectorLayer.getSource().getFeatures().length > MAX_marcadores){
 //				var marcador = vectorLayer.getSource().getFeatures()[vectorLayer.getSource().getFeatures().length - 1];
 				var marcador = vectorLayer.getSource().getFeatureById(id_pos);
@@ -473,6 +490,12 @@ function cargarGeoJson(num_marcadores) {
 }
 
 function actualizarPuntosMapa() {
+    var ym = document.getElementById('yearmonth').value;
+    var yearmonth = ym.split("-");
+    var yyyy = yearmonth[0];
+    var mm = yearmonth[1];
+    //console.log(ym);
+    
     var puntosMapa = document.getElementById('puntos');
-    actualizarGeoJson(parseInt(puntosMapa.value));
+    actualizarGeoJson(parseInt(puntosMapa.value), yyyy, mm);
 }

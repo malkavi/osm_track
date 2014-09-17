@@ -1,5 +1,6 @@
 .htaccess
 app_settings.php
 *.geojson
+*.tsv
 resources/*
 map2
