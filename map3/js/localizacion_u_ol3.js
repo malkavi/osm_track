@@ -461,6 +461,36 @@ function cargarGeoJson(num_marcadores, year, month) {
 			//console.log(id_pos);
 			//console.log(id_pos + MAX_marcadores - 1);
 			marcador = vectorLayer.getSource().getFeatureById(id_pos + MAX_marcadores - 1);
+			
+			/*Ponerle un estilo al ultimo*/
+			style = new ol.style.Style({
+                image: new ol.style.Icon(({
+                    anchor: [0.5, 1],
+                    anchorXUnits: 'fraction',
+                    anchorYUnits: 'fraction',
+                    src: 'markers/marker-green.png' //icons[ Math.floor(rnd * (icons.length-1) ) ]
+                }))
+                /*image : new ol.style.Circle({
+					radius : 10,
+					fill : new ol.style.Fill({
+						color : 'rgba(0, 255, 0, 0.1)'
+					}),
+					stroke : new ol.style.Stroke({
+						color : 'green',
+						width : 1
+					})
+				}),
+				stroke: new ol.style.Stroke({
+					color: '#f00',
+					width: 1
+				}),
+				fill: new ol.style.Fill({
+					color: 'rgba(255,0,0,0.1)'
+				})*/
+            });
+            marcador.setStyle(style);
+			/**/
+			
 			map.getView().setCenter(marcador.getGeometry().getCoordinates());
 			var features = [];//new Array(MAX_marcadores);
 			var i;
