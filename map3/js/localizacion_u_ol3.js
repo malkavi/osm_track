@@ -34,9 +34,33 @@ function loadMap() {
 	//console.log("init()");
 	//iconoUltimaPos = 'http://dev.openlayers.org/img/marker-green.png';
 	//iconoPos = 'http://dev.openlayers.org/img/marker.png';
+    
+    var osm = new ol.layer.Tile({
+        source: new ol.source.OSM()
+	});
+    
+    var osmtransp = new ol.layer.Tile({
+        source: new ol.source.OSM({
+            attributions: [
+              new ol.Attribution({
+                html: 'All maps &copy; ' + '<a href="http://www.opencyclemap.org/">OpenCycleMap</a>'
+              }),
+              ol.source.OSM.DATA_ATTRIBUTION
+            ],
+            url: 'http://{a-c}.tile.opencyclemap.org/transport/{z}/{x}/{y}.png'
+        })
+	});
 
-	var osm = new ol.layer.Tile({
-		source : new ol.source.OSM()
+	var osmcycle = new ol.layer.Tile({
+        source: new ol.source.OSM({
+            attributions: [
+              new ol.Attribution({
+                html: 'All maps &copy; ' + '<a href="http://www.opencyclemap.org/">OpenCycleMap</a>'
+              }),
+              ol.source.OSM.DATA_ATTRIBUTION
+            ],
+            url: 'http://{a-c}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png'
+        })
 	});
 	var bing = new ol.layer.Tile(
 	{
@@ -85,96 +109,20 @@ function loadMap() {
     document.getElementById('yearmonth').value = yyyy+'-'+mm;
     document.getElementById('yearmonth').max = yyyy+'-'+mm;
     
+    //Load first points
     cargarGeoJson(30, yyyy, mm);
 
-/*	// Points
-	createPointStyleFunction = function() {
-		return function(feature, resolution) {
-			var style = new ol.style.Style({
-				image : new ol.style.Circle({
-					radius : 10,
-					fill : new ol.style.Fill({
-						color : 'rgba(255, 0, 0, 0.1)'
-					}),
-					stroke : new ol.style.Stroke({
-						color : 'red',
-						width : 1
-					})
-				}),
-				fill: new ol.style.Fill({
-                    color: 'rgba(255,255,255,0.4)'
-                }),
-                stroke: new ol.style.Stroke({
-                    color: '#3399CC',
-                    width: 1.25
-                })
-//				text : createTextStyle(feature, resolution, myDom.points)
-			});
-			return [ style ];
-		};
-	};
-
-	geoJsonSource = new ol.source.GeoJSON({
-				projection : 'EPSG:3857',
-				url : 'tsv-to-geojson.php'
-	});
-
-	vectorLayer = new ol.layer.Vector({
-		source : geoJsonSource,
-		style : createPointStyleFunction()
-	});
-	                                                                                        
-	var key = geoJsonSource.on('change', function() {
-		if (geoJsonSource.getState() == 'ready') {
-			geoJsonSource.unByKey(key);
-			// do something with the source
-			console.log("algo ");
-			//var features = geoJsonSource.getFeatures();
-			var id_pos = 0;
-			while (vectorLayer.getSource().getFeatures().length > MAX_marcadores){
-//				var marcador = vectorLayer.getSource().getFeatures()[vectorLayer.getSource().getFeatures().length - 1];
-				var marcador = vectorLayer.getSource().getFeatureById(id_pos);
-				id_pos++;
-//				console.log(marcador);
-				vectorLayer.getSource().removeFeature(marcador);
-			}
-			marcador = vectorLayer.getSource().getFeatureById(id_pos + MAX_marcadores - 1);
-			map.getView().setCenter(marcador.getGeometry().getCoordinates());
-			var features = [];//new Array(MAX_marcadores);
-			var i;
-			var startPoint = vectorLayer.getSource().getFeatureById(id_pos).getGeometry().getCoordinates();
-			id_pos++;
-            var endPoint = vectorLayer.getSource().getFeatureById(id_pos).getGeometry().getCoordinates();
-            id_pos++;
-            features.push(new ol.Feature({
-                'geometry': new ol.geom.LineString([startPoint, endPoint])
-            }));
-			for (i = 0; i < MAX_marcadores-2; ++i) {
-			    startPoint = endPoint;
-                endPoint = vectorLayer.getSource().getFeatureById(id_pos).getGeometry().getCoordinates();
-    			//features[i] = new ol.Feature({
-    			features.push(new ol.Feature({
-                    'geometry': new ol.geom.LineString([startPoint, endPoint])
-                }));
-                //startPoint = endPoint;
-                //endPoint = vectorLayer.getSource().getFeatureById(id_pos).getGeometry().getCoordinates();
-                id_pos++;
-			}
-			//console.log(features);
-			geoJsonSource.addFeatures(features);
-//			console.log(marcador.getGeometry().getCoordinates());
-		}
-	});*/
-
+    //Load Map with scale line
     var scaleLineControl = new ol.control.ScaleLine();
     //scaleLineControl.setUnits('metric');
 	map = new ol.Map({
-		layers : [ osm, bing, mapQO, mapQS, mapQH, staT, staW, staTL, vectorLayer ],
+		layers : [ osm, osmtransp, osmcycle, bing, mapQO, mapQS, mapQH, staT, staW, staTL, vectorLayer ],
 		overlays: [overlay],
 		target : 'map',
 		controls: ol.control.defaults({
             attributionOptions: /** @type {olx.control.AttributionOptions} */ ({
-              collapsible: false
+              collapsible: true,
+              collapsed: false
             })
         }).extend([
             scaleLineControl
@@ -184,6 +132,8 @@ function loadMap() {
 			zoom : 14
 		})
 	});
+	
+	//Initialize layers
 	initCapas();
 	osm.setVisible(true);
 	vectorLayer.setVisible(true);
@@ -209,32 +159,42 @@ function loadMap() {
                 //actualizarGeoJson(100);
                 break;
             case 1:
+                //OSM transport
+                osmtransp.setVisible(true);
+                //actualizarGeoJson(100);
+                break;
+            case 2:
+                //OSM cycle
+                osmcycle.setVisible(true);
+                //actualizarGeoJson(100);
+                break;
+            case 3:
                 //Bing
                 bing.setVisible(true);
                 //osm.setVisible(false);
                 break;
-            case 2:
+            case 4:
                 //MapQuest OSM
                 mapQO.setVisible(true);
                 //osm.setVisible(false);
                 break;
-            case 3:
+            case 5:
                 //MapQuest Sat
                 mapQS.setVisible(true);
                 //osm.setVisible(false);
                 break;
-            case 4:
+            case 6:
                 //MapQuest HYB
                 mapQH.setVisible(true);
                 //osm.setVisible(false);
                 break;
-            case 5:
+            case 7:
                 //Stamen Terrain
                 staTL.setVisible(true);
                 staT.setVisible(true);
                 //osm.setVisible(false);
                 break;
-            case 6:
+            case 8:
                 //Stamen WaterColors
                 staTL.setVisible(true);
                 staW.setVisible(true);
@@ -245,30 +205,6 @@ function loadMap() {
 		map.render();
     }, false);
 	//console.log(capasSelect);
-	
-	//var unitsSelect = new ol.dom.Input(document.getElementById('units'));
-    //unitsSelect.bindTo('value', scaleLineControl, 'units');
-
-	/*var swipe = document.getElementById('swipe');
-
-	bing.on('precompose', function(event) {
-		var ctx = event.context;
-		var width = ctx.canvas.width * (swipe.value / 100);
-
-		ctx.save();
-		ctx.beginPath();
-		ctx.rect(width, 0, ctx.canvas.width - width, ctx.canvas.height);
-		ctx.clip();
-	});
-
-	bing.on('postcompose', function(event) {
-		var ctx = event.context;
-		ctx.restore();
-	});
-
-	swipe.addEventListener('input', function() {
-		map.render();
-	}, false);*/
 	
 	//Evento click
 	var highlightStyleCache = {};
