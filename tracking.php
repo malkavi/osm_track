@@ -17,6 +17,11 @@ if ($data['key'] != $tracking_key){
     return;
 }
 
+if ( !$data['lon'] || !$data['lat'] || !$data['timestamp'] ) {
+    echo "Faltan parametros";
+    return;
+}
+
 $lat = $data['lat'];
 $lon = $data['lon'];
 $loc = $data['leg'];
