@@ -3,9 +3,9 @@ MAX_marcadores = 30;
 // var createPointStyleFunction;
 
 function init() {
-	// callPage('tsv-to-geojson.php');
 	loadMap();
 }
+
 function loadMap() {
 	/**
 	 * Elements that make up the popup.
@@ -49,7 +49,7 @@ function loadMap() {
 											{
 												html : 'All maps &copy; '
 														+ '<a href="http://www.opencyclemap.org/">OpenCycleMap</a>'
-											}), ol.source.OSM.DATA_ATTRIBUTION ],
+											}), ol.source.OSM.ATTRIBUTION ],
 							url : 'http://{a-c}.tile.opencyclemap.org/transport/{z}/{x}/{y}.png'
 						})
 			});
@@ -63,10 +63,11 @@ function loadMap() {
 											{
 												html : 'All maps &copy; '
 														+ '<a href="http://www.opencyclemap.org/">OpenCycleMap</a>'
-											}), ol.source.OSM.DATA_ATTRIBUTION ],
+											}), ol.source.OSM.ATTRIBUTION ],
 							url : 'http://{a-c}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png'
 						})
 			});
+
 	var bing = new ol.layer.Tile(
 			{
 				source : new ol.source.BingMaps(
@@ -135,7 +136,7 @@ function loadMap() {
 			attributionOptions : /** @type {olx.control.AttributionOptions} */
 			({
 				collapsible : true,
-				collapsed : false
+				collapsed : true
 			})
 		}).extend([ scaleLineControl ]),
 		view : new ol.View({
@@ -302,40 +303,6 @@ function loadMap() {
 	map.on('click', function(evt) {
 		displayFeatureInfo(evt.pixel);
 	});
-}
-
-function AjaxCaller() {
-	var xmlhttp = false;
-	try {
-		xmlhttp = new ActiveXObject("Msxml2.XMLHTTP");
-	} catch (e) {
-		try {
-			xmlhttp = new ActiveXObject("Microsoft.XMLHTTP");
-		} catch (E) {
-			xmlhttp = false;
-		}
-	}
-
-	if (!xmlhttp && typeof XMLHttpRequest != 'undefined') {
-		xmlhttp = new XMLHttpRequest();
-	}
-	return xmlhttp;
-}
-
-function callPage(url) {
-	ajax = AjaxCaller();
-	ajax.open("GET", url, true);
-	ajax.onreadystatechange = function() {
-		if (ajax.readyState == 4) {
-			if (ajax.status == 200) {
-				console.log("pagina leida");
-				geoJsonLeido = ajax.responseText;
-				// console.log(geoJsonLeido);
-				loadMap();
-			}
-		}
-	}
-	ajax.send(null);
 }
 
 function initCapas() {
