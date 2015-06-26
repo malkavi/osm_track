@@ -221,8 +221,13 @@ function loadMap() {
 	// Evento click
 	var highlightStyleCache = {};
 
-	var featureOverlay = new ol.FeatureOverlay({
+    var collection = new ol.Collection();
+	var featureOverlay = new ol.layer.Vector({
 		map : map,
+        source: new ol.source.Vector({
+            features: collection,
+            useSpatialIndex: false // optional, might improve performance
+        }),
 		style : function(feature, resolution) {
 			console.log("funcion highlight");
 			var text = resolution < 5000 ? feature.get('name') : '';
@@ -260,7 +265,9 @@ function loadMap() {
 				}) ];
 			}
 			return highlightStyleCache[text];
-		}
+		},
+		updateWhileAnimating: true, // optional, for instant visual feedback
+		updateWhileInteracting: true // optional, for instant visual feedback
 	});
 
 	var highlight;
@@ -290,10 +297,10 @@ function loadMap() {
 
 		if (feature !== highlight) {
 			if (highlight) {
-				featureOverlay.removeFeature(highlight);
+				featureOverlay.getSource().removeFeature(highlight);
 			}
 			if (feature) {
-				featureOverlay.addFeature(feature);
+				featureOverlay.getSource().addFeature(feature);
 			}
 			highlight = feature;
 		}
@@ -320,9 +327,10 @@ function actualizarGeoJson(num_marcadores, year, month) {
 
 function cargarGeoJson(num_marcadores, year, month) {
 	// Points
-	var createPointStyleFunction = function() {
-		return function(feature, resolution) {
-			var style = new ol.style.Style({
+	var createPointStyleFunction = function(feature, resolution) {
+		//return function(feature, resolution) {
+			var geometry = feature.getGeometry();
+			var style = [new ol.style.Style({
 				image : new ol.style.Circle({
 					radius : 10,
 					fill : new ol.style.Fill({
@@ -341,20 +349,76 @@ function cargarGeoJson(num_marcadores, year, month) {
 					width : 1.25
 				})
 			// text : createTextStyle(feature, resolution, myDom.points)
-			});
-			return [ style ];
+			})];
+			//console.log("WTF");
+/*			console.log(geometry);
+			geometry.forEachSegment(function(start, end) {
+			    console.log("forEachSegment");
+                var dx = end[0] - start[0];
+                var dy = end[1] - start[1];
+                var rotation = Math.atan2(dy, dx);
+                // arrows
+                styles.push(new ol.style.Style({
+                  geometry: new ol.geom.Point(end),
+                  image: new ol.style.Icon({
+                    src: 'markers/arrow.png',
+                    anchor: [0.75, 0.5],
+                    rotateWithView: false,
+                    rotation: -rotation
+                  })
+                }));
+            });*/
+			
+			return style;
+		};
+//	};
+	
+	// Line
+	var createLineStyleFunction = function() {
+		return function(feature, resolution) {
+			var geometry = feature.getGeometry();
+			var styles = [
+                // linestring
+                new ol.style.Style({
+                  stroke: new ol.style.Stroke({
+                    color: '#ffcc33',
+                    width: 2
+                  })
+                })
+            ];
+			console.log(geometry);
+			console.log("para cada segmento algo!");
+			geometry.forEachSegment(function(start, end) {
+			    console.log("forEachSegment");
+                var dx = end[0] - start[0];
+                var dy = end[1] - start[1];
+                var rotation = Math.atan2(dy, dx);
+                // arrows
+                styles.push(new ol.style.Style({
+                  geometry: new ol.geom.Point(end),
+                  image: new ol.style.Icon({
+                    src: 'markers/arrow.png',
+                    anchor: [0.75, 0.5],
+                    rotateWithView: false,
+                    rotation: -rotation
+                  })
+                }));
+            });
+			
+			return style;
 		};
 	};
 
 	MAX_marcadores = num_marcadores;
-	geoJsonSource = new ol.source.GeoJSON({
-		projection : 'EPSG:3857',
-		url : 'tsv-to-geojson.php?file=' + year + '_' + month
+	geoJsonSource = new ol.source.Vector({
+//		projection : 'EPSG:3857',
+		url : 'tsv-to-geojson.php?file=' + year + '_' + month,
+		format: new ol.format.GeoJSON()
 	// url : today
 	});
 	vectorLayer = new ol.layer.Vector({
 		source : geoJsonSource,
-		style : createPointStyleFunction()
+		style : createPointStyleFunction
 	});
 	var key = geoJsonSource
 			.on(
