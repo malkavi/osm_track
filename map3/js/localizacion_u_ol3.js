@@ -70,10 +70,12 @@ function loadMap() {
 
 	var bing = new ol.layer.Tile(
 			{
+				visible: false,
+				preload: Infinity,
 				source : new ol.source.BingMaps(
 						{
-							key : 'Ak-dzM4wZjSqTlzveKz5u0d4IQ4bRzVI309GxmkgSVr1ewS6iPSrOvOKhA-CJlm3',
-							imagerySet : 'Aerial'
+							key : 'Au0_zzMAQznXGGdheWg3ze1B7DS_NurNGTiOxdEfFJzWRJt75kAwQyukcCjv9oF_',
+							imagerySet : 'AerialWithLabels'
 						})
 			});
 
@@ -167,21 +169,6 @@ function loadMap() {
 			bing.setVisible(true);
 			// osm.setVisible(false);
 			break;
-/*		case 4:
-			// MapQuest OSM
-			mapQO.setVisible(true);
-			// osm.setVisible(false);
-			break;
-		case 5:
-			// MapQuest Sat
-			mapQS.setVisible(true);
-			// osm.setVisible(false);
-			break;
-		case 6:
-			// MapQuest HYB
-			mapQH.setVisible(true);
-			// osm.setVisible(false);
-			break;*/
 		case 4:
 			// Stamen Terrain
 			staTL.setVisible(true);
