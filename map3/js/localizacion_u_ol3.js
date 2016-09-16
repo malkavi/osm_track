@@ -77,24 +77,6 @@ function loadMap() {
 						})
 			});
 
-	var mapQO = new ol.layer.Tile({
-		style : 'Road',
-		source : new ol.source.MapQuest({
-			layer : 'osm'
-		})
-	});
-	var mapQS = new ol.layer.Tile({
-		style : 'Aerial',
-		source : new ol.source.MapQuest({
-			layer : 'sat'
-		})
-	});
-	var mapQH = new ol.layer.Tile({
-		style : 'Aerial',
-		source : new ol.source.MapQuest({
-			layer : 'hyb'
-		})
-	});
 	var staT = new ol.layer.Tile({
 		source : new ol.source.Stamen({
 			layer : 'terrain'
@@ -128,7 +110,7 @@ function loadMap() {
 	var scaleLineControl = new ol.control.ScaleLine();
 	// scaleLineControl.setUnits('metric');
 	map = new ol.Map({
-		layers : [ osm, osmtransp, osmcycle, bing, mapQO, mapQS, mapQH, staT,
+		layers : [ osm, osmtransp, osmcycle, bing, staT,
 				staW, staTL, vectorLayer ],
 		overlays : [ overlay ],
 		target : 'map',
@@ -185,7 +167,7 @@ function loadMap() {
 			bing.setVisible(true);
 			// osm.setVisible(false);
 			break;
-		case 4:
+/*		case 4:
 			// MapQuest OSM
 			mapQO.setVisible(true);
 			// osm.setVisible(false);
@@ -199,14 +181,14 @@ function loadMap() {
 			// MapQuest HYB
 			mapQH.setVisible(true);
 			// osm.setVisible(false);
-			break;
-		case 7:
+			break;*/
+		case 4:
 			// Stamen Terrain
 			staTL.setVisible(true);
 			staT.setVisible(true);
 			// osm.setVisible(false);
 			break;
-		case 8:
+		case 5:
 			// Stamen WaterColors
 			staTL.setVisible(true);
 			staW.setVisible(true);
@@ -430,25 +412,39 @@ function cargarGeoJson(num_marcadores, year, month) {
 							console.log("algo ");
 							// var features = geoJsonSource.getFeatures();
 							var id_pos = 0;
+							var id_pos_validos = 0;
 							if (vectorLayer.getSource().getFeatures().length < MAX_marcadores) {
 								MAX_marcadores = vectorLayer.getSource()
 										.getFeatures().length;
+								console.log("algo2 ");
 							}
+							//console.log(vectorLayer.getSource().getFeatures().length);
+							//console.log(MAX_marcadores);
 							while (vectorLayer.getSource().getFeatures().length > MAX_marcadores) {
 								// var marcador =
 								// vectorLayer.getSource().getFeatures()[vectorLayer.getSource().getFeatures().length
 								// - 1];
 								var marcador = vectorLayer.getSource()
 										.getFeatureById(id_pos);
-								id_pos++;
-								// console.log(marcador);
-								vectorLayer.getSource().removeFeature(marcador);
+//    							console.log(marcador);
+    							id_pos++;
+    							if (marcador != null) {
+    							    id_pos_validos++;
+    								vectorLayer.getSource().removeFeature(marcador);
+								} else {
+								    console.log("algo null");
+								    console.log(id_pos);
+								}
 							}
-							// console.log(id_pos);
-							// console.log(id_pos + MAX_marcadores - 1);
-							marcador = vectorLayer.getSource().getFeatureById(
-									id_pos + MAX_marcadores - 1);
-
+							
+							var id_pos_final = id_pos_validos + MAX_marcadores - 1;
+							//console.log(id_pos);
+							//console.log(MAX_marcadores);
+							//console.log(vectorLayer.getSource().getFeatures().length);
+							//console.log(id_pos_final);
+							marcador = vectorLayer.getSource().getFeatureById(id_pos_final);
+							//marcador = vectorLayer.getSource().getFeatureById(id_pos + MAX_marcadores - 1);
+                            console.log(marcador);
 							/* Ponerle un estilo al ultimo */
 							style = new ol.style.Style({
 								image : new ol.style.Icon(({
@@ -478,6 +474,7 @@ function cargarGeoJson(num_marcadores, year, month) {
 									marcador.getGeometry().getCoordinates());
 							var features = [];// new Array(MAX_marcadores);
 							var i;
+							
 							var startPoint = vectorLayer.getSource()
 									.getFeatureById(id_pos).getGeometry()
 									.getCoordinates();
@@ -490,16 +487,23 @@ function cargarGeoJson(num_marcadores, year, month) {
 								'geometry' : new ol.geom.LineString([
 										startPoint, endPoint ])
 							}));
-							for (i = 0; i < MAX_marcadores - 2; ++i) {
+							for (i = 0; i < MAX_marcadores - 1; ++i) {
 								startPoint = endPoint;
-								endPoint = vectorLayer.getSource()
-										.getFeatureById(id_pos).getGeometry()
-										.getCoordinates();
-								// features[i] = new ol.Feature({
-								features.push(new ol.Feature({
-									'geometry' : new ol.geom.LineString([
-											startPoint, endPoint ])
-								}));
+								marcador = vectorLayer.getSource()
+										.getFeatureById(id_pos);
+								if (marcador != null) {
+    								endPoint = marcador.getGeometry()
+    										.getCoordinates();
+    								// features[i] = new ol.Feature({
+    								features.push(new ol.Feature({
+    									'geometry' : new ol.geom.LineString([
+    											startPoint, endPoint ])
+    								}));
+								} else {
+								    console.log("marcador null");
+								    console.log(i);
+								    console.log(id_pos);
+								}
 								// startPoint = endPoint;
 								// endPoint =
 								// vectorLayer.getSource().getFeatureById(id_pos).getGeometry().getCoordinates();
