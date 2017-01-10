@@ -1,7 +1,15 @@
 function tablaMarcadores(elemento) {
-	d3.text("../map2/textfile.txt", function(datasetText) {
+	var today = new Date();
+        var mm = today.getMonth() + 1; // January is 0!
+        var yyyy = today.getFullYear();
+        if (mm < 10) {
+                mm = '0' + mm
+        }
+	d3.text("loc_"+yyyy+"_"+mm+".tsv", function(datasetText) {
+		console.log(datasetText);
 		var rows = d3.tsv.parseRows(datasetText);
-		// console.log(rows);
+		console.log("filas");
+		console.log(rows);
 		var tbl = d3.select(elemento).append("table").attr("id","miTabla4");;
 
 		// Quitar las celdas que no quiero
