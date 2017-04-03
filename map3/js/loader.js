@@ -58,11 +58,11 @@
 
   var scriptId = encodeURIComponent(scriptParams.id);
   if (!raw) {
-    document.write('<scr' + 'ipt type="text/javascript" src="http://openlayers.org/en/master/build/ol.js"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt type="text/javascript" src="https://openlayers.org/en/master/build/ol.js"></scr' + 'ipt>');
   } else {
     window.CLOSURE_NO_DEPS = true; // we've got our own deps file
-    document.write('<scr' + 'ipt type="text/javascript" src="http://openlayers.org/en/master/closure-library/closure/goog/base.js"></scr' + 'ipt>');
-    document.write('<scr' + 'ipt type="text/javascript" src="http://openlayers.org/en/master/build/ol-deps.js"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt type="text/javascript" src="https://openlayers.org/en/master/closure-library/closure/goog/base.js"></scr' + 'ipt>');
+    document.write('<scr' + 'ipt type="text/javascript" src="https://openlayers.org/en/master/build/ol-deps.js"></scr' + 'ipt>');
     document.write('<scr' + 'ipt type="text/javascript" src="' + scriptId + '-require.js"></scr' + 'ipt>');
   }
   document.write('<scr' + 'ipt type="text/javascript" src="js/' + scriptId + '.js"></scr' + 'ipt>');

@@ -394,12 +394,14 @@ function cargarGeoJson(num_marcadores, year, month) {
 					'change',
 					function() {
 						if (geoJsonSource.getState() == 'ready') {
-							geoJsonSource.unByKey(key);
+//							geoJsonSource.unByKey(key);
+							ol.Observable.unByKey(key);
 							// do something with the source
-							console.log("algo ");
+							//console.log("algo ");
 							// var features = geoJsonSource.getFeatures();
 							var id_pos = 0;
 							var id_pos_validos = 0;
+//							var id_pos_validos = vectorLayer.getSource().getFeatures().length;
 							if (vectorLayer.getSource().getFeatures().length < MAX_marcadores) {
 								MAX_marcadores = vectorLayer.getSource()
 										.getFeatures().length;
@@ -412,26 +414,33 @@ function cargarGeoJson(num_marcadores, year, month) {
 								// vectorLayer.getSource().getFeatures()[vectorLayer.getSource().getFeatures().length
 								// - 1];
 								var marcador = vectorLayer.getSource()
+								//		.getFeatureById(vectorLayer.getSource().getFeatures().length - 1);
+								//		.getFeatures()[vectorLayer.getSource().getFeatures().length - 1];
 										.getFeatureById(id_pos);
-//    							console.log(marcador);
-    							id_pos++;
-    							if (marcador != null) {
-    							    id_pos_validos++;
-    								vectorLayer.getSource().removeFeature(marcador);
+//    								console.log(marcador);
+    								id_pos++;
+    								if (marcador != null) {
+    							    		id_pos_validos++;
+    									vectorLayer.getSource().removeFeature(marcador);
 								} else {
-								    console.log("algo null");
-								    console.log(id_pos);
+								    //console.log("algo null");
+								    //console.log(id_pos);
 								}
+//								console.log(id_pos);
+//								console.log(vectorLayer.getSource().getFeatures().length);
 							}
 							
 							var id_pos_final = id_pos_validos + MAX_marcadores - 1;
-							//console.log(id_pos);
-							//console.log(MAX_marcadores);
-							//console.log(vectorLayer.getSource().getFeatures().length);
-							//console.log(id_pos_final);
+//							var id_pos_final = id_pos_validos - 1;
+//							console.log(id_pos);
+//							console.log(MAX_marcadores);
+//							console.log(vectorLayer.getSource().getFeatures().length);
+//							console.log(id_pos_final);
+//                                                      console.log(vectorLayer.getSource().getFeatures()[id_pos_final]);
 							marcador = vectorLayer.getSource().getFeatureById(id_pos_final);
+//                                                        marcador = vectorLayer.getSource().getFeatures()[id_pos_final];
 							//marcador = vectorLayer.getSource().getFeatureById(id_pos + MAX_marcadores - 1);
-                            console.log(marcador);
+                                                        console.log(marcador);
 							/* Ponerle un estilo al ultimo */
 							style = new ol.style.Style({
 								image : new ol.style.Icon(({
@@ -459,6 +468,7 @@ function cargarGeoJson(num_marcadores, year, month) {
 
 							map.getView().setCenter(
 									marcador.getGeometry().getCoordinates());
+							console.log(marcador.getGeometry().getCoordinates());
 							var features = [];// new Array(MAX_marcadores);
 							var i;
 							
