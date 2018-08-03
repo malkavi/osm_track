@@ -1,3 +1,7 @@
+//import { MAX_marcadores, map, centrar } from './localizacion_u_ol5.js'
+import { MAX_marcadores, centrar } from './localizacion.js'
+//import {transform} from '../node_modules/ol/proj.js';
+
 function tablaMarcadores(elemento) {
 	var today = new Date();
         var mm = today.getMonth() + 1; // January is 0!
@@ -6,11 +10,11 @@ function tablaMarcadores(elemento) {
                 mm = '0' + mm
         }
 	d3.text("loc_"+yyyy+"_"+mm+".tsv", function(datasetText) {
-		console.log(datasetText);
+//		console.log(datasetText);
 		var rows = d3.tsv.parseRows(datasetText);
 		console.log("filas");
-		console.log(rows);
-		var tbl = d3.select(elemento).append("table").attr("id","miTabla4");;
+//		console.log(rows);
+		var tbl = d3.select(elemento).append("table").attr("id","miTabla4").attr("class","tablaCoord");
 
 		// Quitar las celdas que no quiero
 		var cabeceras = rows[0].slice(0, 4);
@@ -26,7 +30,7 @@ function tablaMarcadores(elemento) {
 		//var celdasCopy = celdas;
 		for ( var j = 0; j < celdas.length; j++) {
 			celdas[j] = celdas[j].slice(0, 4);
-			celdas[j].push("<a href=\"javascript:test(" + celdas[j][0] + ','
+			celdas[j].push("<a href=\"javascript:Libcsv.test(" + celdas[j][0] + ','
 					+ celdas[j][1] + ")\">Posicion</a>");
 			// celdas[j].push(('<div><a href=
 			// "http://google.com">holita</a></div>'));
@@ -85,17 +89,19 @@ function tablaMarcadores(elemento) {
 
 function test(lon, lat) {
 	// Funciona OK
-	// console.log(lon);
-	// console.log(lat);
+//	 console.log(lon);
+//	 console.log(lat);
 //	var lonLat = new ol.Coordinate([lon, lat]);
 /*	var lonLat = new OpenLayers.LonLat(lat, lon).transform(
 			new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
 			map.getProjectionObject() // to Spherical Mercator Projection
 	);*/
 
-	var zoom = 16;
-	var latLon = ol.proj.transform([lat, lon], "EPSG:4326", "EPSG:3857");
-	map.getView().setCenter(latLon);
+//	var zoom = 16;
+//	var latLon = transform([lat, lon], "EPSG:4326", "EPSG:3857");
+//	console.log(map);
+//	map.getView().setCenter(latLon);
+	centrar(lon, lat);
 //	console.log(latLon);
 //	map.setCenter(lonLat, zoom);
 }
@@ -115,3 +121,7 @@ function tablaMarcadores2() {
 		});
 	});
 }
+
+export {tablaMarcadores, test};
+
+export default test;

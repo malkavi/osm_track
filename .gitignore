@@ -4,3 +4,6 @@ app_settings.php
 *.tsv
 resources/*
 map2
+map3_old
+map3
+map_dev/node_modules

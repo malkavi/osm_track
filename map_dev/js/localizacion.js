@@ -1,9 +1,30 @@
-var map, pois, marcador, vectorLayer, lastfeature, testLayer, geoJsonSource;
-MAX_marcadores = 30;
-// var createPointStyleFunction;
+export {init, MAX_marcadores, map, centrar};
+
+import Overlay from '../node_modules/ol/Overlay.js';
+import Map from '../node_modules/ol/Map.js';
+import Collection from '../node_modules/ol/Collection.js';
+import {Tile as TileLayer, Vector as VectorLayer} from '../node_modules/ol/layer.js';
+import {OSM, BingMaps, Stamen, Vector as VectorSource} from '../node_modules/ol/source.js';
+import GeoJSON from '../node_modules/ol/format/GeoJSON.js';
+import View from '../node_modules/ol/View.js';
+import source from '../node_modules/ol/source.js';
+import {defaults as defaultControls, Attribution, ScaleLine} from '../node_modules/ol/control.js';
+import {Circle as CircleStyle, Fill, Stroke, Style, Text, Icon} from '../node_modules/ol/style.js';
+import Feature from '../node_modules/ol/Feature.js';
+import {LineString, Point} from '../node_modules/ol/geom.js';
+import {unByKey} from '../node_modules/ol/Observable.js';
+
+import {transform} from '../node_modules/ol/proj.js';
+
+
+let map;
+let pois, marcador, vectorLayer, lastfeature, testLayer, geoJsonSource;
+let MAX_marcadores = 30;
+
+//loadMap();
 
 function init() {
-	loadMap();
+	return loadMap();
 }
 
 function loadMap() {
@@ -28,7 +49,7 @@ function loadMap() {
 	/**
 	 * Create an overlay to anchor the popup to the map.
 	 */
-	var overlay = new ol.Overlay({
+	var overlay = new Overlay({
 		element : container
 	});
 
@@ -36,61 +57,61 @@ function loadMap() {
 	// iconoUltimaPos = 'http://dev.openlayers.org/img/marker-green.png';
 	// iconoPos = 'http://dev.openlayers.org/img/marker.png';
 
-	var osm = new ol.layer.Tile({
-		source : new ol.source.OSM()
+	var osm = new TileLayer({
+		source : new OSM()
 	});
 
-	var osmtransp = new ol.layer.Tile(
+	var osmtransp = new TileLayer(
 			{
-				source : new ol.source.OSM(
+				source : new OSM(
 						{
 							attributions : [
-									new ol.Attribution(
+									new Attribution(
 											{
 												html : 'All maps &copy; '
 														+ '<a href="http://www.opencyclemap.org/">OpenCycleMap</a>'
-											}), ol.source.OSM.ATTRIBUTION ],
+											}), OSM.ATTRIBUTION ],
 							url : 'http://{a-c}.tile.opencyclemap.org/transport/{z}/{x}/{y}.png'
 						})
 			});
 
-	var osmcycle = new ol.layer.Tile(
+	var osmcycle = new TileLayer(
 			{
-				source : new ol.source.OSM(
+				source : new OSM(
 						{
 							attributions : [
-									new ol.Attribution(
+									new Attribution(
 											{
 												html : 'All maps &copy; '
 														+ '<a href="http://www.opencyclemap.org/">OpenCycleMap</a>'
-											}), ol.source.OSM.ATTRIBUTION ],
+											}), OSM.ATTRIBUTION ],
 							url : 'http://{a-c}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png'
 						})
 			});
 
-	var bing = new ol.layer.Tile(
+	var bing = new TileLayer(
 			{
 				visible: false,
 				preload: Infinity,
-				source : new ol.source.BingMaps(
+				source : new BingMaps(
 						{
 							key : 'Au0_zzMAQznXGGdheWg3ze1B7DS_NurNGTiOxdEfFJzWRJt75kAwQyukcCjv9oF_',
 							imagerySet : 'AerialWithLabels'
 						})
 			});
 
-	var staT = new ol.layer.Tile({
-		source : new ol.source.Stamen({
+	var staT = new TileLayer({
+		source : new Stamen({
 			layer : 'terrain'
 		})
 	});
-	var staW = new ol.layer.Tile({
-		source : new ol.source.Stamen({
+	var staW = new TileLayer({
+		source : new Stamen({
 			layer : 'watercolor'
 		})
 	});
-	var staTL = new ol.layer.Tile({
-		source : new ol.source.Stamen({
+	var staTL = new TileLayer({
+		source : new Stamen({
 			layer : 'terrain-labels'
 		})
 	});
@@ -109,21 +130,21 @@ function loadMap() {
 	cargarGeoJson(30, yyyy, mm);
 
 	// Load Map with scale line
-	var scaleLineControl = new ol.control.ScaleLine();
+	var scaleLineControl = new ScaleLine();
 	// scaleLineControl.setUnits('metric');
-	map = new ol.Map({
+	map = new Map({
 		layers : [ osm, osmtransp, osmcycle, bing, staT,
 				staW, staTL, vectorLayer ],
 		overlays : [ overlay ],
 		target : 'map',
-		controls : ol.control.defaults({
+		controls : defaultControls({
 			attributionOptions : /** @type {olx.control.AttributionOptions} */
 			({
 				collapsible : true,
 				collapsed : true
 			})
 		}).extend([ scaleLineControl ]),
-		view : new ol.View({
+		view : new View({
 			center : [ 0, 0 ],
 			zoom : 14
 		})
@@ -190,43 +211,43 @@ function loadMap() {
 	// Evento click
 	var highlightStyleCache = {};
 
-    var collection = new ol.Collection();
-	var featureOverlay = new ol.layer.Vector({
+    var collection = new Collection();
+	var featureOverlay = new VectorLayer({
 		map : map,
-        source: new ol.source.Vector({
+        source: new VectorSource({
             features: collection,
             useSpatialIndex: false // optional, might improve performance
         }),
 		style : function(feature, resolution) {
-			console.log("funcion highlight");
+//			console.log("funcion highlight");
 			var text = resolution < 5000 ? feature.get('name') : '';
 			if (!highlightStyleCache[text]) {
 				console.log("highlight22");
-				highlightStyleCache[text] = [ new ol.style.Style({
-					image : new ol.style.Circle({
+				highlightStyleCache[text] = [ new Style({
+					image : new CircleStyle({
 						radius : 15,
-						fill : new ol.style.Fill({
+						fill : new Fill({
 							color : 'rgba(0, 255, 0, 0.1)'
 						}),
-						stroke : new ol.style.Stroke({
+						stroke : new Stroke({
 							color : 'green',
 							width : 1
 						})
 					}),
-					stroke : new ol.style.Stroke({
+					stroke : new Stroke({
 						color : '#f00',
 						width : 1
 					}),
-					fill : new ol.style.Fill({
+					fill : new Fill({
 						color : 'rgba(255,0,0,0.1)'
 					}),
-					text : new ol.style.Text({
+					text : new Text({
 						font : '12px Calibri,sans-serif',
 						text : text,
-						fill : new ol.style.Fill({
+						fill : new Fill({
 							color : '#000'
 						}),
-						stroke : new ol.style.Stroke({
+						stroke : new Stroke({
 							color : '#f00',
 							width : 3
 						})
@@ -249,6 +270,9 @@ function loadMap() {
 
 		// console.log(feature.getId());
 		// console.log(feature.get('title'));
+		if (feature === undefined) {
+			return;
+		}
 		if (!feature.getId() && (feature.getId() != 0)) {
 			// Si no es un punto pasamos
 			// console.log(feature.getId());
@@ -279,11 +303,16 @@ function loadMap() {
 	map.on('click', function(evt) {
 		displayFeatureInfo(evt.pixel);
 	});
+	global.map = map;
+	return map;
 }
 
 function initCapas() {
 	map.getLayers().forEach(function(layer) {
-		layer.setVisible(false);
+//		console.log(layer);
+		if (layer instanceof TileLayer) {
+			layer.setVisible(false);
+		}
 	});
 }
 
@@ -296,48 +325,50 @@ function actualizarGeoJson(num_marcadores, year, month) {
 
 function cargarGeoJson(num_marcadores, year, month) {
 	// Points
-	var createPointStyleFunction = function(feature, resolution) {
+	var createPointStyleFunction = function(feature) {
 		//return function(feature, resolution) {
 			var geometry = feature.getGeometry();
-			var style = [new ol.style.Style({
-				image : new ol.style.Circle({
+			var style = [new Style({
+				image : new CircleStyle({
 					radius : 10,
-					fill : new ol.style.Fill({
+					fill : new Fill({
 						color : 'rgba(255, 0, 0, 0.1)'
 					}),
-					stroke : new ol.style.Stroke({
+					stroke : new Stroke({
 						color : 'red',
 						width : 1
 					})
 				}),
-				fill : new ol.style.Fill({
+				fill : new Fill({
 					color : 'rgba(255,255,255,0.4)'
 				}),
-				stroke : new ol.style.Stroke({
+				stroke : new Stroke({
 					color : '#3399CC',
 					width : 1.25
 				})
 			// text : createTextStyle(feature, resolution, myDom.points)
 			})];
 			//console.log("WTF");
-/*			console.log(geometry);
-			geometry.forEachSegment(function(start, end) {
-			    console.log("forEachSegment");
-                var dx = end[0] - start[0];
-                var dy = end[1] - start[1];
-                var rotation = Math.atan2(dy, dx);
-                // arrows
-                styles.push(new ol.style.Style({
-                  geometry: new ol.geom.Point(end),
-                  image: new ol.style.Icon({
-                    src: 'markers/arrow.png',
-                    anchor: [0.75, 0.5],
-                    rotateWithView: false,
-                    rotation: -rotation
-                  })
-                }));
-            });*/
-			
+//			console.log(geometry); 
+
+
+/*geometry.forEachSegment(function(start, end) {
+  var dx = end[0] - start[0];
+  var dy = end[1] - start[1];
+  var rotation = Math.atan2(dy, dx);
+  // arrows
+  style.push(new ol.style.Style({
+	geometry: new ol.geom.Point(end),
+	image: new ol.style.Icon({
+	  src: 'https://openlayers.org/en/v4.4.2/examples/data/arrow.png',
+	  anchor: [0.75, 0.5],
+	  rotateWithView: true,
+	  rotation: -rotation
+	})
+  }));
+});*/
+
+				
 			return style;
 		};
 //	};
@@ -348,8 +379,8 @@ function cargarGeoJson(num_marcadores, year, month) {
 			var geometry = feature.getGeometry();
 			var styles = [
                 // linestring
-                new ol.style.Style({
-                  stroke: new ol.style.Stroke({
+                new Style({
+                  stroke: new Stroke({
                     color: '#ffcc33',
                     width: 2
                   })
@@ -363,9 +394,9 @@ function cargarGeoJson(num_marcadores, year, month) {
                 var dy = end[1] - start[1];
                 var rotation = Math.atan2(dy, dx);
                 // arrows
-                styles.push(new ol.style.Style({
-                  geometry: new ol.geom.Point(end),
-                  image: new ol.style.Icon({
+                styles.push(new Style({
+                  geometry: new Point(end),
+                  image: new Icon({
                     src: 'markers/arrow.png',
                     anchor: [0.75, 0.5],
                     rotateWithView: false,
@@ -379,15 +410,16 @@ function cargarGeoJson(num_marcadores, year, month) {
 	};
 
 	MAX_marcadores = num_marcadores;
-	geoJsonSource = new ol.source.Vector({
+	geoJsonSource = new VectorSource({
 //		projection : 'EPSG:3857',
 		url : 'tsv-to-geojson.php?file=' + year + '_' + month,
-		format: new ol.format.GeoJSON()
+		format: new GeoJSON()
 	// url : today
 	});
-	vectorLayer = new ol.layer.Vector({
+	vectorLayer = new VectorLayer({
 		source : geoJsonSource,
 		style : createPointStyleFunction
+		//style : createLineStyleFunction
 	});
 	var key = geoJsonSource
 			.on(
@@ -395,7 +427,7 @@ function cargarGeoJson(num_marcadores, year, month) {
 					function() {
 						if (geoJsonSource.getState() == 'ready') {
 //							geoJsonSource.unByKey(key);
-							ol.Observable.unByKey(key);
+							unByKey(key);
 							// do something with the source
 							//console.log("algo ");
 							// var features = geoJsonSource.getFeatures();
@@ -442,8 +474,8 @@ function cargarGeoJson(num_marcadores, year, month) {
 							//marcador = vectorLayer.getSource().getFeatureById(id_pos + MAX_marcadores - 1);
                                                         console.log(marcador);
 							/* Ponerle un estilo al ultimo */
-							style = new ol.style.Style({
-								image : new ol.style.Icon(({
+							var style = new Style({
+								image : new Icon(({
 									anchor : [ 0.5, 1 ],
 									anchorXUnits : 'fraction',
 									anchorYUnits : 'fraction',
@@ -480,8 +512,8 @@ function cargarGeoJson(num_marcadores, year, month) {
 									.getFeatureById(id_pos).getGeometry()
 									.getCoordinates();
 							id_pos++;
-							features.push(new ol.Feature({
-								'geometry' : new ol.geom.LineString([
+							features.push(new Feature({
+								'geometry' : new LineString([
 										startPoint, endPoint ])
 							}));
 							for (i = 0; i < MAX_marcadores - 1; ++i) {
@@ -492,8 +524,8 @@ function cargarGeoJson(num_marcadores, year, month) {
     								endPoint = marcador.getGeometry()
     										.getCoordinates();
     								// features[i] = new ol.Feature({
-    								features.push(new ol.Feature({
-    									'geometry' : new ol.geom.LineString([
+    								features.push(new Feature({
+    									'geometry' : new LineString([
     											startPoint, endPoint ])
     								}));
 								} else {
@@ -523,3 +555,10 @@ function actualizarPuntosMapa() {
 	var puntosMapa = document.getElementById('puntos');
 	actualizarGeoJson(parseInt(puntosMapa.value), yyyy, mm);
 }
+
+function centrar(lon, lat) {
+	var latLon = transform([lat, lon], "EPSG:4326", "EPSG:3857");
+	global.map.getView().setCenter(latLon);
+}
+
+//export {init, MAX_marcadores, map, centrar};

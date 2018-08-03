@@ -1,0 +1,20 @@
+{
+  "name": "map_dev",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js --mode development"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "private": true,
+  "devDependencies": {
+    "webpack": "^4.16.3"
+  },
+  "dependencies": {
+    "ol": "^5.1.3"
+  }
+}
