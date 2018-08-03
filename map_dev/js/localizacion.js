@@ -348,65 +348,63 @@ function cargarGeoJson(num_marcadores, year, month) {
 				})
 			// text : createTextStyle(feature, resolution, myDom.points)
 			})];
-			//console.log("WTF");
-//			console.log(geometry); 
+		return style;
+	};
 
-
-/*geometry.forEachSegment(function(start, end) {
-  var dx = end[0] - start[0];
-  var dy = end[1] - start[1];
-  var rotation = Math.atan2(dy, dx);
-  // arrows
-  style.push(new ol.style.Style({
-	geometry: new ol.geom.Point(end),
-	image: new ol.style.Icon({
-	  src: 'https://openlayers.org/en/v4.4.2/examples/data/arrow.png',
-	  anchor: [0.75, 0.5],
-	  rotateWithView: true,
-	  rotation: -rotation
-	})
-  }));
-});*/
-
-				
-			return style;
-		};
-//	};
-	
 	// Line
-	var createLineStyleFunction = function() {
-		return function(feature, resolution) {
+	var createLineStyleFunction = function(feature) {
 			var geometry = feature.getGeometry();
-			var styles = [
-                // linestring
-                new Style({
-                  stroke: new Stroke({
-                    color: '#ffcc33',
-                    width: 2
-                  })
-                })
-            ];
-			console.log(geometry);
-			console.log("para cada segmento algo!");
-			geometry.forEachSegment(function(start, end) {
-			    console.log("forEachSegment");
-                var dx = end[0] - start[0];
-                var dy = end[1] - start[1];
-                var rotation = Math.atan2(dy, dx);
+            if (geometry instanceof LineString) {
+		var style = [
+                    // linestring
+                    new Style({
+                        stroke: new Stroke({
+                            color: 'red',
+                            width: 2
+                        })
+                    })
+                ];
+//	        console.log("para cada segmento algo!");
+                geometry.forEachSegment(function(start, end) {
+//	            console.log("forEachSegment");
+                    var dx = end[0] - start[0];
+                    var dy = end[1] - start[1];
+                    var rotation = Math.atan2(dy, dx);
                 // arrows
-                styles.push(new Style({
-                  geometry: new Point(end),
-                  image: new Icon({
-                    src: 'markers/arrow.png',
-                    anchor: [0.75, 0.5],
-                    rotateWithView: false,
-                    rotation: -rotation
-                  })
-                }));
-            });
-			
-			return style;
-		};
+                    style.push(new Style({
+                      geometry: new Point(end),
+                      image: new Icon({
+                        src: 'markers/redarrow.png',
+                        anchor: [0.75, 0.5],
+                        rotateWithView: false,
+                        rotation: -rotation
+                      })
+                    }));
+                });
+	    } else {
+		var style = [
+                    new Style({
+			    image : new CircleStyle({
+				radius : 10,
+				fill : new Fill({
+				color : 'rgba(255, 0, 0, 0.1)'
+			    }),
+			    stroke : new Stroke({
+			    color : 'red',
+		 	    width : 1
+			})
+		    }),
+			fill : new Fill({
+			color : 'rgba(255,255,255,0.4)'
+		    }),
+		    stroke : new Stroke({
+			color : '#3399CC',
+			width : 1.25
+ 		    })
+                })];
+            }
+
+	    return style;
 	};
 
 	MAX_marcadores = num_marcadores;
@@ -418,8 +416,8 @@ function cargarGeoJson(num_marcadores, year, month) {
 	});
 	vectorLayer = new VectorLayer({
 		source : geoJsonSource,
-		style : createPointStyleFunction
-		//style : createLineStyleFunction
+		//style : createPointStyleFunction
+		style : createLineStyleFunction
 	});
 	var key = geoJsonSource
 			.on(
