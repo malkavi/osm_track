@@ -12,7 +12,7 @@
   "license": "ISC",
   "private": true,
   "devDependencies": {
-    "webpack": "^4.16.3"
+    "webpack": "^4.46.0"
   },
   "dependencies": {
     "ol": "^5.1.3"
